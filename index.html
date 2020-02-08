@@ -30,10 +30,20 @@
     const { Component } = React;
 
     const ProductLink = props =>
-      React.createElement("a", { href: "#products" }, "Products", ` (${props.length})`);
+      React.createElement(
+        "a",
+        { href: "#products" },
+        "Products",
+        ` (${props.length})`
+      );
 
     const CompanyLink = props =>
-      React.createElement("a", { href: "#companies" }, "Companies", `${props.length}`);
+      React.createElement(
+        "a",
+        { href: "#companies" },
+        "Companies",
+        `${props.length}`
+      );
 
     const ProductList = ({ products }) => {
       const lis = products.map((item, idx) => {
@@ -45,14 +55,18 @@
     const CompanyList = ({ companies }) => {
       console.log(companies, "Dima");
       const lis = companies.map((item, idx) => {
-        //   console.log(object);
         return React.createElement("li", { key: idx }, item.name);
       });
       return React.createElement("ul", null, lis);
     };
 
     const Nav = ({ companies, products }) => {
-      return React.createElement("header", null, ProductLink(products), CompanyLink(companies));
+      return React.createElement(
+        "header",
+        null,
+        ProductLink(products),
+        CompanyLink(companies)
+      );
     };
 
     class App extends Component {
@@ -76,10 +90,7 @@
             return responses.map(response => response.data);
           })
           .then(data => {
-            //   console.log(data);
             this.setState({ products: data[0], companies: data[1] });
-
-            // console.log(this.data);
           });
         window.addEventListener("hashchange", () => {
           const view = window.location.hash.slice(1);
@@ -88,28 +99,17 @@
       }
 
       render() {
-        // console.log(this.state);
-
         const { companies, products, view } = this.state;
-
-        const productLink = React.createElement(ProductLink, {
-          length: products.length
-        });
-        const companyLink = React.createElement(CompanyLink, {
-          length: companies.length
-        });
 
         const nav = React.createElement(Nav, { companies, products, view });
 
         let chosenView;
 
         if (view === "companies") {
-          //   console.log(companies, "comp");
           chosenView = React.createElement(CompanyList, { companies });
         }
 
         if (view === "products") {
-          //   console.log(products, "prod");
           chosenView = React.createElement(ProductList, { products });
         }
 

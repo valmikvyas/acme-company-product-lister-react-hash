@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script
+      src="https://unpkg.com/react@16/umd/react.development.js"
+      crossorigin
+    ></script>
+    <script
+      src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"
+      crossorigin
+    ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Faker/3.1.0/faker.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap"
+      rel="stylesheet"
+    />
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+
+  <script>
+    const { render } = ReactDOM;
+    const { Component } = React;
+
+    const ProductLink = props =>
+      React.createElement("a", { href: "#products" }, "Products", ` (${props.length})`);
+
+    const CompanyLink = props =>
+      React.createElement("a", { href: "#companies" }, "Companies", `${props.length}`);
+
+    const ProductList = ({ products }) => {
+      const lis = products.map((item, idx) => {
+        return React.createElement("li", { key: idx }, item.name);
+      });
+      return React.createElement("ul", null, lis);
+    };
+
+    const CompanyList = ({ companies }) => {
+      console.log(companies, "Dima");
+      const lis = companies.map((item, idx) => {
+        //   console.log(object);
+        return React.createElement("li", { key: idx }, item.name);
+      });
+      return React.createElement("ul", null, lis);
+    };
+
+    const Nav = ({ companies, products }) => {
+      return React.createElement("header", null, ProductLink(products), CompanyLink(companies));
+    };
+
+    class App extends Component {
+      constructor() {
+        super();
+        this.state = { products: [], companies: [], view: "products" };
+      }
+
+      componentDidMount() {
+        const view = window.location.hash.slice(1);
+
+        const pProducts = axios.get(
+          "https://acme-users-api-rev.herokuapp.com/api/products"
+        );
+        const pCompanies = axios.get(
+          "https://acme-users-api-rev.herokuapp.com/api/companies"
+        );
+
+        const pAll = Promise.all([pProducts, pCompanies])
+          .then(responses => {
+            return responses.map(response => response.data);
+          })
+          .then(data => {
+            //   console.log(data);
+            this.setState({ products: data[0], companies: data[1] });
+
+            // console.log(this.data);
+          });
+        window.addEventListener("hashchange", () => {
+          const view = window.location.hash.slice(1);
+          this.setState({ view });
+        });
+      }
+
+      render() {
+        // console.log(this.state);
+
+        const { companies, products, view } = this.state;
+
+        const productLink = React.createElement(ProductLink, {
+          length: products.length
+        });
+        const companyLink = React.createElement(CompanyLink, {
+          length: companies.length
+        });
+
+        const nav = React.createElement(Nav, { companies, products, view });
+
+        let chosenView;
+
+        if (view === "companies") {
+          //   console.log(companies, "comp");
+          chosenView = React.createElement(CompanyList, { companies });
+        }
+
+        if (view === "products") {
+          //   console.log(products, "prod");
+          chosenView = React.createElement(ProductList, { products });
+        }
+
+        return React.createElement("div", null, nav, chosenView);
+      }
+    }
+
+    const root = document.querySelector("#root");
+    render(React.createElement(App), root);
+  </script>
+</html>
